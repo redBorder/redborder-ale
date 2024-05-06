@@ -114,7 +114,7 @@ end
 
 R_EARTH = 6378.137 # radius of the earth in kilometer
 TWO_PI = Math::PI / 180
-MILE = (1 / (TWO_PI * R_EARTH)) / 1000 # 1 meter in degree
+CENTIMILE = (10 / (TWO_PI * R_EARTH)) # 1 meter in degree
 
 def calc_geo_position(img_x, img_y, ap_floor_location)
   # Get geo coordinates from image coordinates
@@ -125,8 +125,8 @@ def calc_geo_position(img_x, img_y, ap_floor_location)
   #floor_origin_lattitude = -2.9454061
   floor_origin_lattitude, floor_origin_longitude = parse_ap_floor_location(ap_floor_location)
 
-  lattitude = floor_origin_lattitude + (img_x * MILE / 100)
-  longitude = floor_origin_longitude + (img_y * MILE / 100) / Math.cos(TWO_PI * floor_origin_lattitude)
+  lattitude = floor_origin_lattitude + (img_x * CENTIMILE)
+  longitude = floor_origin_longitude + (img_y * CENTIMILE) / Math.cos(TWO_PI * floor_origin_lattitude)
   [lattitude, longitude].map { |coor| coor.round(6) } # geo_pos
 end
 
