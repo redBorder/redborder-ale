@@ -78,7 +78,7 @@ p 'subscribe to the location topic'
 subscriber.setsockopt(ZMQ::SUBSCRIBE, 'location')
 
 CONF_PATH = "#{path}rb_ale_aps.conf"
-if File.file?(CONF_PATH && !File.zero?(CONF_PATH))
+if File.file?(CONF_PATH) && !File.zero?(CONF_PATH)
   p 'reading the aps/radio config file'
   file = File.read(CONF_PATH)
   ap_radios = JSON.parse(file)
@@ -101,46 +101,33 @@ def produce_to_kafka(msg, topic = 'rb_loc')
   end
 end
 
-def calc_geo_position(x, y,_ap_floor_location)
-  # set variables
-  x /= 100
-  y /= 100
-  geo_pos = []
+def parse_ap_floor_location(ap_floor_location)
+  if (ap_floor_location.count(';') >= 1)
+    as_array = ap_floor_location.split(';')
+    floor_origin_longitude = as_array.first.to_d
+    floor_origin_lattitude = as_array.last.to_d
+  else
+    floor_origin_longitude = floor_origin_lattitude = 0.0
+  end
+  [floor_origin_lattitude, floor_origin_longitude]
+end
 
+R_EARTH = 6378.137 # radius of the earth in kilometer
+TWO_PI = Math::PI / 180
+MILE = (1 / (TWO_PI * R_EARTH)) / 1000 # 1 meter in degree
+
+def calc_geo_position(img_x, img_y, ap_floor_location)
+  # Get geo coordinates from image coordinates
   #floor_img_width = 18808
   #floor_img_length = 1184
-
   # TODO NOW check the google map
   #floor_origin_longitude = 43.267019
   #floor_origin_lattitude = -2.9454061
+  floor_origin_lattitude, floor_origin_longitude = parse_ap_floor_location(ap_floor_location)
 
-  floor_origin_longitude = floor_origin_lattitude = 0.0
-
-  p "_ap_floor_location = #{_ap_floor_location.to_s}"
-
-  if (_ap_floor_location.split(";").count >= 2)
-    floor_origin_longitude = _ap_floor_location.split(";").first.to_d
-    floor_origin_lattitude = _ap_floor_location.split(";").last.to_d
-  end
-
-  p "floor_origin_longitude = #{floor_origin_longitude.to_s}"
-  p "floor_origin_lattitude = #{floor_origin_lattitude.to_s}"
-
-
-  #r_earth = 6378137
-  earth = 6378.137 #radius of the earth in kilometer
-  m = (1 / ((2 * Math::PI / 360) * earth)) / 1000 #1 meter in degree
-
-  lattitude = floor_origin_lattitude + (x * m)
-  longitude = floor_origin_longitude + (y * m) / Math::cos(floor_origin_lattitude * (Math::PI / 180))
-  #lattitude = floor_origin_lattitude + (y / r_earth) * (180/Math::PI)
-  #longitude = floor_origin_longitude + (x / r_earth) * (180/Math::PI) / Math::cos(floor_origin_lattitude * Math::PI/180)
-   lattitude = lattitude.round(6)
-   longitude = longitude.round(6)
-  # return the values
-  geo_pos.push(longitude)
-  geo_pos.push(lattitude)
-  return geo_pos;
+  lattitude = floor_origin_lattitude + (img_x * MILE / 100)
+  longitude = floor_origin_longitude + (img_y * MILE / 100) / Math.cos(TWO_PI * floor_origin_lattitude)
+  [lattitude, longitude].map { |coor| coor.round(6) } # geo_pos
 end
 
 def nb_event_to_MSE_looks_like_json(message,_ap_mac_address,_ap_hierarchy,_ap_floor_location)
