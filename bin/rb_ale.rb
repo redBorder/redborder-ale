@@ -78,7 +78,7 @@ p 'subscribe to the location topic'
 subscriber.setsockopt(ZMQ::SUBSCRIBE, 'location')
 
 CONF_PATH = "#{path}rb_ale_aps.conf"
-if File.file?(CONF_PATH && !File.zero?(CONF_PATH))
+if File.file?(CONF_PATH) && !File.zero?(CONF_PATH)
   p 'reading the aps/radio config file'
   file = File.read(CONF_PATH)
   ap_radios = JSON.parse(file)
