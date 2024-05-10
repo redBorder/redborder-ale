@@ -2,7 +2,7 @@
 Description=redborder ale module
 
 [Service]
-ExecStart=/usr/lib/rvm/rubies/ruby-2.7.5/bin/ruby /var/rb-ale/bin/rb_ale.rb
+ExecStart=/usr/lib/rvm/rubies/ruby-2.7.5 do /var/rb-ale/bin/rb_ale.rb
 Restart=always
 User=redborder-ale
 Type=simple

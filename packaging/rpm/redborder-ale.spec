@@ -1,3 +1,5 @@
+%undefine __brp_mangle_shebangs
+
 Name:     redborder-ale
 Version:  %{__version}
 Release:  %{__release}%{?dist}
@@ -33,7 +35,10 @@ getent passwd %{name} >/dev/null || \
     -c "User of %{name} service" %{name}
 exit 0
 
-%post -p /sbin/ldconfig
+%post 
+systemctl daemon-reload
+-p /sbin/ldconfig
+
 %postun -p /sbin/ldconfig
 
 %files
