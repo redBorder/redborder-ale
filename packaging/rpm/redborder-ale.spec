@@ -1,4 +1,5 @@
-%undefine __brp_mangle_shebangs
+# %undefine __brp_mangle_shebangs
+%global __brp_mangle_shebangs %{nil}
 
 Name:     redborder-ale
 Version:  %{__version}
