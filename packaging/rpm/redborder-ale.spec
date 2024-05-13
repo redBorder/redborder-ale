@@ -23,6 +23,7 @@ Source0: %{name}-%{version}.tar.gz
 mkdir -p %{buildroot}/usr/lib/%{name}
 install -D -m 644 resources/systemd/%{name}.service %{buildroot}/usr/lib/systemd/system/%{name}.service
 install -D -m 644 conf/schema.pb.rb %{buildroot}/etc/%{name}/schema.pb.rb
+install -D -m 644 conf/rb_ale_aps.conf %{buildroot}/etc/%{name}/rb_ale_aps.conf
 install -D -m 755 bin/rb_ale.rb %{buildroot}/var/rb-ale/bin/rb_ale.rb
 install -D -m 755 resources/scripts/rb_scan_ale.rb %{buildroot}/bin/rb_scan_ale.rb
 
@@ -52,6 +53,7 @@ systemctl daemon-reload
 %defattr(644,root,root)
 /usr/lib/systemd/system/%{name}.service
 /etc/%{name}/schema.pb.rb
+/etc/%{name}/rb_ale_aps.conf
 
 %changelog
 * Mon Dec 27 2021 Eduardo Reyes <eareyes@redborder.com> - 0.0.1
