@@ -32,8 +32,9 @@ rm -rf %{buildroot}
 %pre
 getent group %{name} >/dev/null || groupadd -r %{name}
 getent passwd %{name} >/dev/null || \
-    useradd -r -g %{name} -d / -s /sbin/nologin \
-    -c "User of %{name} service" %{name}
+    useradd -r -g %{name} -d / -c "User of %{name} service" %{name}
+su - %{name} -c 'rvm gemset use global --default' # Before disabling the login, change the default gemset
+usermod -s /sbin/nologin %{name}
 exit 0
 
 %post 
