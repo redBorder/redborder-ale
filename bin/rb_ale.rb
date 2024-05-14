@@ -290,18 +290,22 @@ end
 # TODO: Move this helper function to helper module
 def check_ap_status(config)
   p '------ Checking AP Status .. ------'
-  config.each do |ale|
-    p "check ap status : #{ale['ale_sensor']['ale_ip']}:#{ale['ale_sensor']['ale_port']}"
-    uri = URI.parse('https://'+ale['ale_sensor']['ale_ip']+ale['ale_sensor']['topology_uri'])
-    p "Uri is: #{uri}"
-    access_points = get_access_point_info(ale['ale_sensor'],uri)
-    p "Checking the access_points is #{access_points}"
-    ##For each access_point send a message to rb_state topic
-    access_points.each do |ap_mac_address|
-      status_json_msg = get_sample_rb_status(ap_mac_address.downcase)
-      produce_to_kafka(status_json_msg, 'rb_state')
-      p status_json_msg
+  begin
+    config.each do |ale|
+      p "check ap status : #{ale['ale_sensor']['ale_ip']}:#{ale['ale_sensor']['ale_port']}"
+      uri = URI.parse('https://'+ale['ale_sensor']['ale_ip']+ale['ale_sensor']['topology_uri'])
+      p "Uri is: #{uri}"
+      access_points = get_access_point_info(ale['ale_sensor'],uri)
+      p "Checking the access_points is #{access_points}"
+      ##For each access_point send a message to rb_state topic
+      access_points.each do |ap_mac_address|
+        status_json_msg = get_sample_rb_status(ap_mac_address.downcase)
+        produce_to_kafka(status_json_msg, 'rb_state')
+        p status_json_msg
+      end
     end
+  rescue
+    p 'Could not get ALE sensors, checking all statuses failed'
   end
 end
 
