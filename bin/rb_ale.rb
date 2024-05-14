@@ -29,10 +29,11 @@ rescue LoadError
   exit
 end
 
+# OS Config
 begin
   if Dir.exist?('/opt/rb/etc/rb-ale/')
     path = '/opt/rb/etc/rb-ale/'
-  elsif Dir.exist?('/etc/redborder-ale/')
+  elsif Dir.exist?('/etc/redborder-ale/') # We are already checking this dir exist
     path = '/etc/redborder-ale/'
   else
     raise StandardError
@@ -51,7 +52,7 @@ load "#{path}schema.pb.rb"
 p 'starting rb-ale service'
 p 'load schema.pb.rb file'
 
-if File.file?("#{path}config.yml")
+if File.file?("#{path}config.yml") # We are already checking this in serverspec
   p 'Loading sensors from the config file...'
   config = YAML.load_file("#{path}config.yml")
 else
@@ -63,6 +64,7 @@ end
 # the correct domain
 @producer = Poseidon::Producer.new(['kafka.redborder.cluster:9092'], 'ale_producer')
 
+# TODO def suscriber
 # Setting up the ZMQ reciever (subscriber)
 context = ZMQ::Context.new
 
@@ -135,8 +137,8 @@ def calc_geo_position(x, y,_ap_floor_location)
   longitude = floor_origin_longitude + (y * m) / Math::cos(floor_origin_lattitude * (Math::PI / 180))
   #lattitude = floor_origin_lattitude + (y / r_earth) * (180/Math::PI)
   #longitude = floor_origin_longitude + (x / r_earth) * (180/Math::PI) / Math::cos(floor_origin_lattitude * Math::PI/180)
-   lattitude = lattitude.round(6)
-   longitude = longitude.round(6)
+  lattitude = lattitude.round(6)
+  longitude = longitude.round(6)
   # return the values
   geo_pos.push(longitude)
   geo_pos.push(lattitude)
@@ -206,8 +208,10 @@ def get_sample_rb_status(ap_mac_address)
       "timestamp": %{timestamp},
       "status": "on"
     }
-  ' % {ap_mac_address: ap_mac_address,
-       timestamp: timestamp}
+  ' % {
+    ap_mac_address: ap_mac_address,
+    timestamp: timestamp
+  }
   JSON.parse(to_produce).to_json.to_s
 end
 
@@ -240,12 +244,13 @@ def get_sample_rb_flow(message, ap_mac_address)
   "wireless_station": "%{ap_mac_address}",
   "client_mac": "%{clientMacAddress}"
 }
-  ' % {timestamp: timestamp,
-       ap_mac_address: ap_mac_address,
-       clientMacAddress: clientMacAddress}
+  ' % { timestamp: timestamp,
+        ap_mac_address: ap_mac_address,
+        clientMacAddress: clientMacAddress}
   JSON.parse(to_produce).to_json.to_s
 end
 
+# This function is duplicated
 def make_request(config, uri)
   http = Net::HTTP.new(uri.host, uri.port)
   http.use_ssl = true
@@ -282,9 +287,9 @@ def get_access_point_info(config, uri)
   result
 end
 
+# TODO: Move this helper function to helper module
 def check_ap_status(config)
   p '------ Checking AP Status .. ------'
-
   config.each do |ale|
     p "check ap status : #{ale['ale_sensor']['ale_ip']}:#{ale['ale_sensor']['ale_port']}"
     uri = URI.parse('https://'+ale['ale_sensor']['ale_ip']+ale['ale_sensor']['topology_uri'])
@@ -343,6 +348,7 @@ loop do
   produce_to_kafka(json_msg)
 
   # Flow message for testing
+  # THIS SHIT SHOULD BE COMMENTED!!! or moved to test for being possitive
   flow_json_msg = get_sample_rb_flow(message, ap_mac_address.downcase)
   produce_to_kafka(flow_json_msg, 'rb_flow')
 end
