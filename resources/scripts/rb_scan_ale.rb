@@ -65,7 +65,7 @@ def get_hierarchy_from_database(mac)
   return "#{campus['name']}>#{building['name']}>#{floor['name']}"
 end
 
-
+# This function is duplicated. Poor name
 def make_request(uri,config)
   http = Net::HTTP.new(uri.host, uri.port)
   http.use_ssl = true
@@ -76,7 +76,6 @@ def make_request(uri,config)
 end
 
 def get_hierarchy_info(config,type,uri)
-
   result = Hash.new
   response = make_request(uri,config)
   if (response.code == "200")
@@ -102,6 +101,7 @@ def get_hierarchy_info(config,type,uri)
 end
 
 #Let's check whether we are in Centos 6 or 7
+# OS Config
 begin
   if File.exist?('/usr/bin/rb_scan_ale.rb')         # Centos 7
     centos7 = TRUE
@@ -120,6 +120,7 @@ rescue StandardError
   exit
 end
 
+# OS Config
 if centos7
   p "Loading postgresql database from /var/www/rb-rails/config/database.yml"
   pg_config = YAML.load_file('/var/www/rb-rails/config/database.yml') rescue nil
@@ -127,6 +128,10 @@ else
   p "Loading postgresql database from /opt/rb/var/www/rb-rails/config/database.yml"
   pg_config = YAML.load_file('/opt/rb/var/www/rb-rails/config/database.yml') rescue nil
 end
+
+# OS Config and write
+# ALE_APS_CONF_PATH = centos7 ? '/etc/redborder-ale/rb_ale_aps.conf' : '/opt/rb/etc/rb-ale/rb_ale_aps.conf'
+# CONF_YAML_PATH = centos7 ? '/etc/redborder-ale/config.yml' : '/opt/rb/etc/rb-ale/config.yml'
 
 p "Error loading the postgresql database config file" and exit if pg_config.nil?
 @dabase_aps,@database_sensors = nil
@@ -146,6 +151,9 @@ end
 
 p "No sensors or access points defined in the Manager!" and exit if @database_aps.nil? or @database_aps.count == 0 or @database_sensors.nil? or @database_sensors.count == 0
 
+# TODO Refactor en 2 lines
+# p "Loading sensors from #{CONF_YAML_PATH}..."
+# config = YAML.load_file(CONF_YAML_PATH)
 if centos7
   p "Loading sensors from /etc/redborder-ale/config.yml..."
   config = YAML.load_file('/etc/redborder-ale/config.yml')
@@ -160,6 +168,7 @@ aps = Hash.new
 config.each do |ale|
   ale = ale['ale_sensor']
 
+  # TODO: Map this as .map do |field| ?
   # Get campus..
   uri = URI.parse('https://'+ale['ale_ip']+ale['campus_uri'])
   campus = get_hierarchy_info(ale,"Campus",uri)
@@ -176,6 +185,7 @@ config.each do |ale|
   uri = URI.parse('https://'+ale['ale_ip']+ale['topology_uri'])
   response = make_request(uri,ale)
 
+  # TODO: make a funtion for this
   if response.code == '200'
     result = JSON.parse(response.body)
     topology = result['Topology_result']
@@ -221,6 +231,9 @@ config.each do |ale|
   end
 end
 
+# TODO: Refactor in 2 lines
+# p "writing information to #{ALE_APS_CONF_PATH}"
+# write_config_file(aps, ALE_APS_CONF_PATH)
 if centos7
   p 'writing information to /etc/redborder-ale/rb_ale_aps.conf'
   write_config_file(aps, '/etc/redborder-ale/rb_ale_aps.conf')
