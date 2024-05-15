@@ -56,5 +56,7 @@ systemctl daemon-reload
 /etc/%{name}/rb_ale_aps.conf
 
 %changelog
+* Wed May 15 2024 Luis Blacno <ljblanco@redborder.com>
+- added to install config file rb_ale_aps.conf and setting global as default gemset before disabling the login
 * Mon Dec 27 2021 Eduardo Reyes <eareyes@redborder.com> - 0.0.1
 - first spec version
