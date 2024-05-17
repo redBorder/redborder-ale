@@ -19,7 +19,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Create tag based on metadata.rb
+      - name: Create tag based on VERSION
         id: create_tag
         run: |
           TAG=$(cat ./VERSION)
