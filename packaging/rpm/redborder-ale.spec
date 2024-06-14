@@ -11,7 +11,7 @@ License:  GNU AGPLv3
 URL:  https://github.com/redBorder/redborder-ale
 Source0: %{name}-%{version}.tar.gz
 
-Requires: zeromq-dev
+Requires: zeromq-devel
 
 %description
 %{summary}
