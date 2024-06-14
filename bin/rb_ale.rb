@@ -71,9 +71,11 @@ context = ZMQ::Context.new
 # First, connect our subscriber socket
 subscriber = context.socket(ZMQ::SUB)
 
-config.each do |ale|
-  p "subscribe to ale : #{ale['ale_sensor']['ale_ip']} on port #{ale['ale_sensor']['ale_port']}"
-  subscriber.connect("tcp://#{ale['ale_sensor']['ale_ip']}:#{ale['ale_sensor']['ale_port']}")
+if config
+  config.each do |ale|
+    p "subscribe to ale : #{ale['ale_sensor']['ale_ip']} on port #{ale['ale_sensor']['ale_port']}"
+    subscriber.connect("tcp://#{ale['ale_sensor']['ale_ip']}:#{ale['ale_sensor']['ale_port']}")
+  end
 end
 
 p 'subscribe to the location topic'
