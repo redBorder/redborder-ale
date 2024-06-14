@@ -11,7 +11,7 @@ License:  GNU AGPLv3
 URL:  https://github.com/redBorder/redborder-ale
 Source0: %{name}-%{version}.tar.gz
 
-Requires: zeromq
+Requires: zeromq-dev
 
 %description
 %{summary}
@@ -26,6 +26,7 @@ mkdir -p %{buildroot}/usr/lib/%{name}
 install -D -m 644 resources/systemd/%{name}.service %{buildroot}/usr/lib/systemd/system/%{name}.service
 install -D -m 644 conf/schema.pb.rb %{buildroot}/etc/%{name}/schema.pb.rb
 install -D -m 644 conf/rb_ale_aps.conf %{buildroot}/etc/%{name}/rb_ale_aps.conf
+install -D -m 644 conf/config.yml %{buildroot}/etc/%{name}/config.yml
 install -D -m 755 bin/rb_ale.rb %{buildroot}/var/rb-ale/bin/rb_ale.rb
 install -D -m 755 resources/scripts/rb_scan_ale.rb %{buildroot}/bin/rb_scan_ale.rb
 
@@ -56,6 +57,7 @@ systemctl daemon-reload
 /usr/lib/systemd/system/%{name}.service
 /etc/%{name}/schema.pb.rb
 /etc/%{name}/rb_ale_aps.conf
+/etc/%{name}/config.yml
 
 %changelog
 * Wed May 15 2024 Luis Blacno <ljblanco@redborder.com>
